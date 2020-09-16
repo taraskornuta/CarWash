@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "util_stdout.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -42,7 +43,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-UART_HandleTypeDef huart1;
+
 
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -58,7 +59,6 @@ const osThreadAttr_t defaultTask_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_USART1_UART_Init(void);
 void StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -98,9 +98,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART1_UART_Init();
+
   /* USER CODE BEGIN 2 */ 
-    HAL_UART_Transmit(&huart1, (uint8_t *)"Hello\n", 6, 100);
+  STDOUT_UART_Init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -139,7 +139,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    //vTaskDelay
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -181,38 +181,7 @@ void SystemClock_Config(void)
   }
 }
 
-/**
-  * @brief USART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART1_UART_Init(void)
-{
 
-  /* USER CODE BEGIN USART1_Init 0 */
-
-  /* USER CODE END USART1_Init 0 */
-
-  /* USER CODE BEGIN USART1_Init 1 */
-
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART1_Init 2 */
-
-  /* USER CODE END USART1_Init 2 */
-
-}
 
 /**
   * @brief GPIO Initialization Function
@@ -252,12 +221,11 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    TRACE("DefaultTask");
+    osDelay(1000);
   }
   /* USER CODE END 5 */ 
 }
-
-
 
 
  /**
@@ -302,11 +270,19 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
+{
+//  /* User can add his own implementation to report the file name and line number,
+//   ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+
+//  /* Infinite loop */
+//    TRACE("Wrong parameters value: file %s on line %d\r\n", file, line);
+//    
+//    /*stop here*/
+//    /* TODO remove loop from release builds but keep for debug build */
+//    while (1)
+//    {
+//        ;
+//    }
 }
 #endif /* USE_FULL_ASSERT */
 
