@@ -24,13 +24,14 @@ void manButtons_Update(void)
   // Check is button pressed
   for (uint8_t i = 0; i < BTN_COUNT; i++)
   {
-    if(ButtonPressed(&port, 1 << i)) // was pressed, send state to msgBuffer
+    if(0 != ButtonPressed(&port, 1 << i)) // was pressed, send state to msgBuffer
     {
       btnCode |= 1 << i;
-      TRACE("BUTTON_PIN_%d mask 0x%x", i, btnCode); 
+      //TRACE("BUTTON_PIN_%d mask 0x%x", i, btnCode); 
       xMessageBufferSend(buttonMsgHandler, (void *)&btnCode, sizeof(btnCode), 100);
     }
   }
+  
   vTaskDelay(BUTTONS_DEBOUNCE_TIME);
 }
 
@@ -38,6 +39,18 @@ MessageBufferHandle_t * manButtons_GetHandler(void)
 {
   return &buttonMsgHandler;
 }
+
+uint8_t manButtons_GetBtnCode(void)
+{
+  uint8_t btnCode = 0;
+  if (!xMessageBufferIsEmpty(buttonMsgHandler))
+  {
+      xMessageBufferReceive(buttonMsgHandler, &btnCode, sizeof(btnCode), 100);
+  }
+  return btnCode;
+}
+
+
 
 static void manButtons_GpioInit(void)
 {

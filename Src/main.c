@@ -117,10 +117,8 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of defaultTask */
- // defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
   TRACE("Device start");
-    Tasks_Init();
+  Tasks_Init();
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -184,10 +182,8 @@ void SystemClock_Config(void)
   */
 static void MX_GPIO_Init(void)
 {
-
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOB_CLK_ENABLE();
-
 }
 
 /* USER CODE BEGIN 4 */
@@ -201,25 +197,6 @@ void vApplicationIdleHook (void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
-/**
-  * @brief  Function implementing the defaultTask thread.
-  * @param  argument: Not used 
-  * @retval None
-  */
-/* USER CODE END Header_StartDefaultTask */
-//void StartDefaultTask(void *argument)
-//{
-//  /* USER CODE BEGIN 5 */
-//  /* Infinite loop */
-
-//  for(;;)
-//  {
-//      //Read the buttons state
-//    manButtons_Update();
-//  }
-//  /* USER CODE END 5 */ 
-//}
 
  /**
   * @brief  Period elapsed callback in non blocking mode

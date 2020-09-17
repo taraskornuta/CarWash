@@ -2,6 +2,9 @@
 
 static UART_HandleTypeDef huart1;
 
+/**
+  * @brief PUTCHAR_PROTOTYPE redirects stdout to UART
+  */
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
     
 PUTCHAR_PROTOTYPE

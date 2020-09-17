@@ -2,14 +2,12 @@
 
 static osThreadId_t ButtonTaskHandle;
 static washTaskProgress_t washBox[WASH_BOX_COUNT];
-static MessageBufferHandle_t *pButtonMsgHandler;
+static uint8_t reservedBox = WASH_BOX_COUNT;
 
 void Tasks_Init(void)
 {
-  pButtonMsgHandler = manButtons_GetHandler();
   ButtonTaskHandle = osThreadNew(ButtonTask, NULL, &ButtonTasksAttrib);
-  
-  for(uint8_t i = 0; i < WASH_BOX_COUNT; i++) //
+  for(uint8_t i = 0; i < WASH_BOX_COUNT; i++)
   {
     washBox[i].taskHandle = osThreadNew(WashTask, NULL, &WashTasksAttrib[i]);
     washBox[i].delayClbk  = vTaskDelay;
@@ -19,46 +17,21 @@ void Tasks_Init(void)
 
 static void WashTask(void *argument)
 {
-  uint8_t btnCode = 0;
-  uint8_t lastBtnCode = 0;
-  
   while(1)
-  {
+  { 
+    // get task hendle to identify which task call WashTask func
     osThreadId_t handler = xTaskGetCurrentTaskHandle();
     
-    if (!xMessageBufferIsEmpty(*pButtonMsgHandler))
+    //iterate over all washing boxes
+    for(uint8_t box = 0; box < WASH_BOX_COUNT; box++)
     {
-      xMessageBufferReceive(*pButtonMsgHandler, &btnCode, sizeof(btnCode), 100);
-      if ((1 << BTN_BOX_1 & btnCode) == btnCode) washBox[BTN_BOX_1].isOccupied = true;
-      if ((1 << BTN_BOX_2 & btnCode) == btnCode) washBox[BTN_BOX_2].isOccupied = true;
-      if ((1 << BTN_BOX_3 & btnCode) == btnCode) washBox[BTN_BOX_3].isOccupied = true;
-      if ((1 << BTN_BOX_4 & btnCode) == btnCode) washBox[BTN_BOX_4].isOccupied = true;
-      //if (BTN_START == btnCode) washBox[i].start = true;
-    }
-    
-    for(uint8_t i = 0; i < WASH_BOX_COUNT; i++)
-    {
-      if (washBox[i].taskHandle == handler)
+      if (washBox[box].taskHandle == handler)
       {
-        if ((true == washBox[i].isOccupied) && (true == washBox[i].start))
+        // check is box occupied by car
+        if (true == washBox[box].occupied)
         {
-          switch((uint8_t)washBox[i].stage)
-          {
-            case WASH_STAGE_FOAM:
-                WashTask_StateFoam(i);
-                break;
-            case WASH_STAGE_BRUSHES:
-                WashTask_StateBrushes(i);
-                break;
-            case WASH_STAGE_RINSING:
-                WashTask_StateRinsing(i);
-                break;
-            case WASH_STAGE_DRYING:
-                WashTask_StateDrying(i);
-                break;
-            default:
-                break;
-          }   
+          // start washing process 
+          WashTask_Washing(box);
         }
       } 
     }
@@ -71,38 +44,87 @@ static void ButtonTask(void *argument)
 {
   while(1)
   {
+    uint8_t btnCode = 0;
+    // polls the buttons pressings 
     manButtons_Update();
+    //use MessageBuffer to store buttons state
+    btnCode = manButtons_GetBtnCode();
+    if (btnCode)
+    {
+      // try to reserve box for washing
+      if ((1 << BTN_BOX_1 & btnCode) == btnCode) reservedBox = BTN_BOX_1;
+      if ((1 << BTN_BOX_2 & btnCode) == btnCode) reservedBox = BTN_BOX_2;
+      if ((1 << BTN_BOX_3 & btnCode) == btnCode) reservedBox = BTN_BOX_3;
+      if ((1 << BTN_BOX_4 & btnCode) == btnCode) reservedBox = BTN_BOX_4;
+      // if box was reserved than washing will start, else ignore
+      if ((1 << BTN_START & btnCode) == btnCode) WashTask_TaskStart(reservedBox);
+    }
   }
 }
 
 
-static void WashTask_StateFoam(uint8_t boxNumber)
+static void WashTask_TaskStart(washBox_t boxNumber)
 {
+  assert_param(IS_WASH_BOX(boxNumber));
+  if (boxNumber < WASH_BOX_COUNT)
+  {
+    washBox[boxNumber].occupied = true;
+    boxNumber = WASH_BOX_COUNT; // set dummy value
+  }
+}
+
+static void WashTask_Washing(washBox_t boxNumber)
+{
+  assert_param(IS_WASH_BOX(boxNumber));
+  switch((uint8_t)washBox[boxNumber].stage)
+  {
+    case WASH_STAGE_FOAM:
+        WashTask_StateFoam(boxNumber);
+        break;
+    case WASH_STAGE_BRUSHES:
+        WashTask_StateBrushes(boxNumber);
+        break;
+    case WASH_STAGE_RINSING:
+        WashTask_StateRinsing(boxNumber);
+        break;
+    case WASH_STAGE_DRYING:
+        WashTask_StateDrying(boxNumber);
+        break;
+    default:
+        break;
+  }
+}
+
+static void WashTask_StateFoam(washBox_t boxNumber)
+{
+  assert_param(IS_WASH_BOX(boxNumber));
   TRACE("Box %d, stage FOAM", boxNumber);
-  washBox[boxNumber].delayClbk(washStageTimingsSec[WASH_STAGE_FOAM] * 1000);
+  washBox[boxNumber].delayClbk(washStageTimingsSec[WASH_STAGE_FOAM]);
   washBox[boxNumber].stage = WASH_STAGE_BRUSHES; // switch to next state
 }
 
-static void WashTask_StateBrushes(uint8_t boxNumber)
+static void WashTask_StateBrushes(washBox_t boxNumber)
 {
+  assert_param(IS_WASH_BOX(boxNumber));
   TRACE("Box %d, stage BRUSHES", boxNumber);
-  washBox[boxNumber].delayClbk(washStageTimingsSec[WASH_STAGE_BRUSHES] * 1000);
+  washBox[boxNumber].delayClbk(washStageTimingsSec[WASH_STAGE_BRUSHES]);
   washBox[boxNumber].stage = WASH_STAGE_RINSING; // switch to next state
 }
 
-static void WashTask_StateRinsing(uint8_t boxNumber)
+static void WashTask_StateRinsing(washBox_t boxNumber)
 {
+  assert_param(IS_WASH_BOX(boxNumber));
   TRACE("Box %d, stage RINSING", boxNumber);  
-  washBox[boxNumber].delayClbk(washStageTimingsSec[WASH_STAGE_RINSING] * 1000);
+  washBox[boxNumber].delayClbk(washStageTimingsSec[WASH_STAGE_RINSING]);
   washBox[boxNumber].stage = WASH_STAGE_DRYING;  // switch to next state
 }
 
-static void WashTask_StateDrying(uint8_t boxNumber)
+static void WashTask_StateDrying(washBox_t boxNumber)
 {
+  assert_param(IS_WASH_BOX(boxNumber));
   TRACE("Box %d, stage DRYING", boxNumber);
-  washBox[boxNumber].delayClbk(washStageTimingsSec[WASH_STAGE_DRYING] * 1000);
-  washBox[boxNumber].stage      = WASH_STAGE_FOAM; // switch to next state
-  washBox[boxNumber].isOccupied = false;           // reset all triggers as it was last stage
-  washBox[boxNumber].start      = false;
+  washBox[boxNumber].delayClbk(washStageTimingsSec[WASH_STAGE_DRYING]);
+  washBox[boxNumber].stage    = WASH_STAGE_FOAM; // switch to next state
+  washBox[boxNumber].occupied = false;           // reset all triggers as it was last stage
   TRACE("Box %d Finish!", boxNumber); 
 }

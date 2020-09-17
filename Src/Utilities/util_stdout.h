@@ -13,7 +13,6 @@
   */
 void utilStdout_Init(void);
 
-
 /*!
  * @brief Debug trace macro
  *
