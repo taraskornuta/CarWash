@@ -21,10 +21,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include "util_stdout.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "util_stdout.h"
+#include "man_buttons.h"
+#include "wash_tasks.h"
 
 /* USER CODE END Includes */
 
@@ -44,14 +46,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-
-/* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 128 * 4
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -98,9 +92,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-
-  /* USER CODE BEGIN 2 */ 
-  STDOUT_UART_Init();
+  /* USER CODE BEGIN 2 */
+  utilStdout_Init();
+  manButtons_Init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -124,8 +118,9 @@ int main(void)
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
+ // defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  TRACE("Device start");
+    Tasks_Init();
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -182,7 +177,6 @@ void SystemClock_Config(void)
 }
 
 
-
 /**
   * @brief GPIO Initialization Function
   * @param None
@@ -192,7 +186,6 @@ static void MX_GPIO_Init(void)
 {
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
 }
@@ -202,7 +195,7 @@ static void MX_GPIO_Init(void)
 /* RTOS IDLE Hook */ 
 void vApplicationIdleHook (void)
 {
-
+    
 }
 
 
@@ -215,18 +208,18 @@ void vApplicationIdleHook (void)
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
-{
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-    TRACE("DefaultTask");
-    osDelay(1000);
-  }
-  /* USER CODE END 5 */ 
-}
+//void StartDefaultTask(void *argument)
+//{
+//  /* USER CODE BEGIN 5 */
+//  /* Infinite loop */
 
+//  for(;;)
+//  {
+//      //Read the buttons state
+//    manButtons_Update();
+//  }
+//  /* USER CODE END 5 */ 
+//}
 
  /**
   * @brief  Period elapsed callback in non blocking mode
@@ -270,19 +263,11 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{
-//  /* User can add his own implementation to report the file name and line number,
-//   ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-
-//  /* Infinite loop */
-//    TRACE("Wrong parameters value: file %s on line %d\r\n", file, line);
-//    
-//    /*stop here*/
-//    /* TODO remove loop from release builds but keep for debug build */
-//    while (1)
-//    {
-//        ;
-//    }
+{ 
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
 

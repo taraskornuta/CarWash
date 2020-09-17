@@ -15,7 +15,7 @@ PUTCHAR_PROTOTYPE
   * @param None
   * @retval None
   */
-void STDOUT_UART_Init(void)
+void utilStdout_Init(void)
 {
   huart1.Instance = USART1;
   huart1.Init.BaudRate = 115200;

@@ -18,7 +18,7 @@
           <Vendor>STMicroelectronics</Vendor>
           <PackID>Keil.STM32F1xx_DFP.2.3.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
-          <Cpu>IRAM(0x20000000-0x20004FFF) IROM(0x8000000-0x800FFFF) CLOCK(8000000) CPUTYPE("Cortex-M3")</Cpu>
+          <Cpu>IRAM(0x20000000-0x20004FFF) IROM(0x8000000-0x800FFFF)  CLOCK(8000000) CPUTYPE("Cortex-M3")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
           <FlashDriverDll></FlashDriverDll>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/STM32F1xx_HAL_Driver/Inc;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\Src;..\Src\Utilities</IncludePath>
+              <IncludePath>../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/STM32F1xx_HAL_Driver/Inc;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\Src;..\Src\Utilities;..\Middlewares\Third_Party\ButtonLib\C;..\Src\Managers</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -391,19 +391,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Utilities</GroupName>
-          <Files>
-            <File>
-              <FileName>util_stdout.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\Utilities\util_stdout.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>::CMSIS</GroupName>
-        </Group>
-        <Group>
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
@@ -430,6 +417,21 @@
               <FileName>stm32f1xx_hal_timebase_tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f1xx_hal_timebase_tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>wash_tasks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\wash_tasks.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Utilities</GroupName>
+          <Files>
+            <File>
+              <FileName>util_stdout.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Utilities\util_stdout.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -572,6 +574,29 @@
               <FilePath>../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3/port.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>Middlewares/ButtonLib</GroupName>
+          <Files>
+            <File>
+              <FileName>button_debounce.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Middlewares\Third_Party\ButtonLib\C\button_debounce.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Managers</GroupName>
+          <Files>
+            <File>
+              <FileName>man_buttons.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Managers\man_buttons.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
     </Target>

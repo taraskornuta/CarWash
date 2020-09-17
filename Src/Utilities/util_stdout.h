@@ -1,14 +1,17 @@
+#ifndef UTIL_STDOUT_H
+#define UTIL_STDOUT_H
+
 #include "stdio.h"
 #include "string.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
 /**
-  * @brief USART1 Initialization Function
+  * @brief utilStdout Initialization Function
   * @param None
   * @retval None
   */
-void STDOUT_UART_Init(void);
+void utilStdout_Init(void);
 
 
 /*!
@@ -29,3 +32,5 @@ void STDOUT_UART_Init(void);
      printf (__VA_ARGS__); \
      taskEXIT_CRITICAL()
 
+
+#endif
