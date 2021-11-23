@@ -1,0 +1,34 @@
+---
+:source:
+  :path: test
+  :file: test_button.c
+:successes:
+- :test: test_button_init
+  :line: 21
+  :message: ''
+  :unity_test_time: 0
+- :test: test_init_defaults
+  :line: 64
+  :message: ''
+  :unity_test_time: 0
+- :test: test_single_button_press
+  :line: 148
+  :message: ''
+  :unity_test_time: 0
+- :test: test_multi_button_press
+  :line: 226
+  :message: ''
+  :unity_test_time: 0
+- :test: test_button_event_get
+  :line: 264
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 5
+  :passed: 5
+  :failed: 0
+  :ignored: 0
+:stdout: []
+:time: 0.03796950000014476

@@ -26,10 +26,10 @@ void utilStdout_Init(void);
  */
  
 #define TRACE(...) \
-     taskENTER_CRITICAL(); \
+     vTaskSuspendAll(); \
      printf("\r\n"); \
      printf (__VA_ARGS__); \
-     taskEXIT_CRITICAL()
+     xTaskResumeAll()
 
 
 #endif

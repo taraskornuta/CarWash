@@ -71,26 +71,33 @@ const osThreadAttr_t ButtonTasksAttrib =
   .stack_size = WASH_TASKS_STACK_SIZE
 };
 
+const osThreadAttr_t ButtonProcessAttrib =
+{
+  .name = "TaskButtonProc",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = WASH_TASKS_STACK_SIZE
+};
+
 const osThreadAttr_t WashTasksAttrib[WASH_BOX_COUNT] =
 {
   {
     .name = "TaskBox_1",
-    .priority = (osPriority_t) osPriorityNormal1,
+    .priority = (osPriority_t) osPriorityBelowNormal,
     .stack_size = WASH_TASKS_STACK_SIZE
   },
   {
     .name = "TaskBox_2",
-    .priority = (osPriority_t) osPriorityNormal2,
+    .priority = (osPriority_t) osPriorityBelowNormal,
     .stack_size = WASH_TASKS_STACK_SIZE
   },
   {
     .name = "TaskBox_3",
-    .priority = (osPriority_t) osPriorityNormal3,
+    .priority = (osPriority_t) osPriorityBelowNormal,
     .stack_size = WASH_TASKS_STACK_SIZE
   },
   {
     .name = "TaskBox_4",
-    .priority = (osPriority_t) osPriorityNormal4,
+    .priority = (osPriority_t) osPriorityBelowNormal,
     .stack_size = WASH_TASKS_STACK_SIZE
   }
 };
@@ -104,11 +111,12 @@ const osThreadAttr_t WashTasksAttrib[WASH_BOX_COUNT] =
   */
 static void WashTask(void *argument);
 static void ButtonTask(void *argument);
+static void ButtonProcess(void *argument);
 
 /**
   * @brief Module decomposed functions
   */
-static void WashTask_TaskStart(washBox_t boxNumber);
+static void WashTask_TaskStart(washBox_t *boxNumber);
 static void WashTask_Washing(washBox_t boxNumber);
 static void WashTask_StateFoam(washBox_t boxNumber);
 static void WashTask_StateBrushes(washBox_t boxNumber);

@@ -1,38 +1,52 @@
 #include "man_buttons_private.h"
 
-static Debouncer port;
+
+btn_instance_t btn_inst[BTN_COUNT] = {
+  {
+      .port = (const uint32_t *)GPIOA,
+      .pin = GPIO_PIN_0,
+  },
+  {
+      .port = (const uint32_t *)GPIOA,
+      .pin = GPIO_PIN_1,
+  },
+  {
+      .port = (const uint32_t *)GPIOA,
+      .pin = GPIO_PIN_2,
+  },
+  {
+      .port = (const uint32_t *)GPIOA,
+      .pin = GPIO_PIN_3,
+  },
+  {
+      .port = (const uint32_t *)GPIOA,
+      .pin = GPIO_PIN_4,
+  }
+};
+
+btn_init_t btn_init = {
+  .process_time_ms = 10,
+  .debounce_time_ms = 20,
+  .port_read = (port_read_cb_t)&HAL_GPIO_ReadPin,
+  .short_release = Button_ShortRelease,
+//  .long_release = Button_LongRelease,
+//  .long_press = Button_LongPress,
+};
+
+
 static MessageBufferHandle_t buttonMsgHandler;
 
 void manButtons_Init(void)
 {
   manButtons_GpioInit();
+  Button_Init(&btn_init, btn_inst, BTN_COUNT);
   buttonMsgHandler = xMessageBufferCreate(5);
 }
 
 void manButtons_Update(void)
 {
-  uint8_t btnCode = 0;
-  // Poll the data from port
-  for (uint8_t i = 0; i < BTN_COUNT; i++)
-  {
-    btnCode |= ((bool)HAL_GPIO_ReadPin(GPIOA, pin[i]) << i);
-  }
-  
-  // Use debounce to filter button press
-  ButtonProcess(&port, btnCode);
-  btnCode = 0;
-  // Check is button pressed
-  for (uint8_t i = 0; i < BTN_COUNT; i++)
-  {
-    if(0 != ButtonPressed(&port, 1 << i)) // was pressed, send state to msgBuffer
-    {
-      btnCode |= 1 << i;
-      //TRACE("BUTTON_PIN_%d mask 0x%x", i, btnCode); 
-      xMessageBufferSend(buttonMsgHandler, (void *)&btnCode, sizeof(btnCode), 100);
-    }
-  }
-  
-  vTaskDelay(BUTTONS_DEBOUNCE_TIME);
+  Button_Update();
+  vTaskDelay(10);
 }
 
 MessageBufferHandle_t * manButtons_GetHandler(void)
@@ -43,11 +57,13 @@ MessageBufferHandle_t * manButtons_GetHandler(void)
 uint8_t manButtons_GetBtnCode(void)
 {
   uint8_t btnCode = 0;
-  if (!xMessageBufferIsEmpty(buttonMsgHandler))
-  {
-      xMessageBufferReceive(buttonMsgHandler, &btnCode, sizeof(btnCode), 100);
-  }
+  xMessageBufferReceive(buttonMsgHandler, &btnCode, sizeof(btnCode), portMAX_DELAY);
   return btnCode;
+}
+
+void Button_ShortRelease(uint8_t btnCode)
+{
+  xMessageBufferSend(buttonMsgHandler, (void *)&btnCode, sizeof(btnCode), 100);
 }
 
 

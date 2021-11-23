@@ -4,20 +4,13 @@
 #include "main.h"
 #include "man_buttons.h"
 #include "util_stdout.h"
-#include "button_debounce.h"
+#include "button.h"
 
-#define BUTTONS_DEBOUNCE_TIME (25UL)
 
-static const uint16_t pin[BTN_COUNT] = 
-{
-  GPIO_PIN_0,
-  GPIO_PIN_1,
-  GPIO_PIN_2,
-  GPIO_PIN_3,
-  GPIO_PIN_4
-};
 
 static void manButtons_GpioInit(void);
+static void Button_ShortRelease(uint8_t btnCode);
+
 
 #endif
 
