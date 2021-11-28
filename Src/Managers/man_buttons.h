@@ -1,8 +1,8 @@
 #ifndef MAN_BUTTONS_H
 #define MAN_BUTTONS_H
 
-#include "main.h"
-#include "message_buffer.h"
+#include <stdint.h>
+
 
 typedef enum 
 {

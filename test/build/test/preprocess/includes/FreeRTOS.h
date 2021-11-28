@@ -1,0 +1,4 @@
+---
+- "../Src/FreeRTOSConfig.h"
+- "../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h"
+- "../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h"

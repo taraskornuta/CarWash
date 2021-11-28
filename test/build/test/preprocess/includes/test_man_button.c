@@ -1,0 +1,8 @@
+---
+- D:/projects/STM/CarWash/test/vendor/ceedling/vendor/unity/src/unity.h
+- "../Src/Managers/man_buttons.h"
+- build/test/mocks/mock_button.h
+- build/test/mocks/mock_stm32f1xx_hal_gpio.h
+- build/test/mocks/mock_message_buffer.h
+- build/test/mocks/mock_task.h
+- build/temp/_test_man_button.c

@@ -8,6 +8,10 @@
 #include "cmsis_os.h"
 #include "message_buffer.h"
 
+#ifdef TEST
+#define static
+#endif
+
 #define WASH_TASKS_STACK_SIZE (64 * 4)  // stack size, used 
 #define WASH_TASKS_ONE_SEC    (100UL)
 
@@ -50,57 +54,7 @@ typedef struct
   washStage_t  stage;        // at which stage washing is
 }washTaskProgress_t;
 
-/**
-  * @brief Timings intervals for each washing stage
-  */
-const uint16_t washStageTimingsSec[WASH_STAGE_COUNT] = 
-{
-  30UL * WASH_TASKS_ONE_SEC,
-  30UL * WASH_TASKS_ONE_SEC,
-  60UL * WASH_TASKS_ONE_SEC,
-  30UL * WASH_TASKS_ONE_SEC
-};
 
-/**
-  * @brief RTOS tasks settings
-  */
-const osThreadAttr_t ButtonTasksAttrib =
-{
-  .name = "TaskButton",
-  .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = WASH_TASKS_STACK_SIZE
-};
-
-const osThreadAttr_t ButtonProcessAttrib =
-{
-  .name = "TaskButtonProc",
-  .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = WASH_TASKS_STACK_SIZE
-};
-
-const osThreadAttr_t WashTasksAttrib[WASH_BOX_COUNT] =
-{
-  {
-    .name = "TaskBox_1",
-    .priority = (osPriority_t) osPriorityBelowNormal,
-    .stack_size = WASH_TASKS_STACK_SIZE
-  },
-  {
-    .name = "TaskBox_2",
-    .priority = (osPriority_t) osPriorityBelowNormal,
-    .stack_size = WASH_TASKS_STACK_SIZE
-  },
-  {
-    .name = "TaskBox_3",
-    .priority = (osPriority_t) osPriorityBelowNormal,
-    .stack_size = WASH_TASKS_STACK_SIZE
-  },
-  {
-    .name = "TaskBox_4",
-    .priority = (osPriority_t) osPriorityBelowNormal,
-    .stack_size = WASH_TASKS_STACK_SIZE
-  }
-};
 
 /**
   * @brief Module private functions
@@ -109,19 +63,19 @@ const osThreadAttr_t WashTasksAttrib[WASH_BOX_COUNT] =
 /**
   * @brief RTOS Task functions callbacks
   */
-static void WashTask(void *argument);
-static void ButtonTask(void *argument);
-static void ButtonProcess(void *argument);
+void WashTask(void *argument);
+void ButtonTask(void *argument);
+void ButtonProcess(void *argument);
 
 /**
   * @brief Module decomposed functions
   */
-static void WashTask_TaskStart(washBox_t *boxNumber);
-static void WashTask_Washing(washBox_t boxNumber);
-static void WashTask_StateFoam(washBox_t boxNumber);
-static void WashTask_StateBrushes(washBox_t boxNumber);
-static void WashTask_StateRinsing(washBox_t boxNumber);
-static void WashTask_StateDrying(washBox_t boxNumber);
+void WashTask_TaskStart(washBox_t *boxNumber);
+void WashTask_Washing(washBox_t boxNumber);
+void WashTask_StateFoam(washBox_t boxNumber);
+void WashTask_StateBrushes(washBox_t boxNumber);
+void WashTask_StateRinsing(washBox_t boxNumber);
+void WashTask_StateDrying(washBox_t boxNumber);
 
 
 #endif

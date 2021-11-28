@@ -1,0 +1,40 @@
+---
+D:/projects/STM/Button/test/vendor/ceedling/vendor/unity/src/unity.c:
+- TEST
+test/support/UnityHelper.c:
+- &1
+  - STM32F103xB
+- TEST
+"../button.c":
+- TEST
+D:/projects/STM/CarWash/test/vendor/ceedling/vendor/unity/src/unity.c:
+- &2
+  - STM32F103xB
+- TEST
+"../Middlewares/Third_Party/Button/button.c":
+- - STM32F103xB
+- TEST
+build/test/mocks/mock_man_buttons.c:
+- - STM32F103xB
+- TEST
+build/test/mocks/mock_main.c:
+- - STM32F103xB
+- TEST
+"../Src/wash_tasks.c":
+- *1
+- TEST
+build/test/mocks/mock_button.c:
+- *2
+- TEST
+build/test/mocks/mock_stm32f1xx_hal_gpio.c:
+- *2
+- TEST
+"../Src/Managers/man_buttons.c":
+- *2
+- TEST
+build/test/mocks/mock_message_buffer.c:
+- *2
+- TEST
+build/test/mocks/mock_task.c:
+- *2
+- TEST

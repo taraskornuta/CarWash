@@ -1,5 +1,57 @@
 #include "wash_tasks_private.h"
 
+/**
+  * @brief Timings intervals for each washing stage
+  */
+static const uint16_t washStageTimingsSec[WASH_STAGE_COUNT] = 
+{
+  30UL * WASH_TASKS_ONE_SEC,
+  30UL * WASH_TASKS_ONE_SEC,
+  60UL * WASH_TASKS_ONE_SEC,
+  30UL * WASH_TASKS_ONE_SEC
+};
+
+/**
+  * @brief RTOS tasks settings
+  */
+static const osThreadAttr_t ButtonTasksAttrib =
+{
+  .name = "TaskButton",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = WASH_TASKS_STACK_SIZE
+};
+
+static const osThreadAttr_t ButtonProcessAttrib =
+{
+  .name = "TaskButtonProc",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = WASH_TASKS_STACK_SIZE
+};
+
+static const osThreadAttr_t WashTasksAttrib[WASH_BOX_COUNT] =
+{
+  {
+    .name = "TaskBox_1",
+    .priority = (osPriority_t) osPriorityBelowNormal,
+    .stack_size = WASH_TASKS_STACK_SIZE
+  },
+  {
+    .name = "TaskBox_2",
+    .priority = (osPriority_t) osPriorityBelowNormal,
+    .stack_size = WASH_TASKS_STACK_SIZE
+  },
+  {
+    .name = "TaskBox_3",
+    .priority = (osPriority_t) osPriorityBelowNormal,
+    .stack_size = WASH_TASKS_STACK_SIZE
+  },
+  {
+    .name = "TaskBox_4",
+    .priority = (osPriority_t) osPriorityBelowNormal,
+    .stack_size = WASH_TASKS_STACK_SIZE
+  }
+};
+
 static washTaskProgress_t washBox[WASH_BOX_COUNT];
 static washBox_t reservedBox = WASH_BOX_COUNT;
 
@@ -15,7 +67,7 @@ void Tasks_Init(void)
 }
 
 
-static void WashTask(void *argument)
+void WashTask(void *argument)
 {
   while(1)
   { 
@@ -34,7 +86,7 @@ static void WashTask(void *argument)
   }
 }
 
-static void ButtonTask(void *argument)
+void ButtonTask(void *argument)
 {
   while(1)
   {
@@ -43,7 +95,7 @@ static void ButtonTask(void *argument)
   }
 }
 
-static void ButtonProcess(void *argument)
+void ButtonProcess(void *argument)
 {
   while(1)
   {
@@ -61,7 +113,7 @@ static void ButtonProcess(void *argument)
   }
 }
 
-static void WashTask_TaskStart(washBox_t *boxNumber)
+void WashTask_TaskStart(washBox_t *boxNumber)
 {
   assert_param(IS_WASH_BOX(*boxNumber));
   
@@ -74,7 +126,7 @@ static void WashTask_TaskStart(washBox_t *boxNumber)
   }
 }
 
-static void WashTask_Washing(washBox_t boxNumber)
+void WashTask_Washing(washBox_t boxNumber)
 {
   assert_param(IS_WASH_BOX(boxNumber));
   
@@ -97,7 +149,7 @@ static void WashTask_Washing(washBox_t boxNumber)
   }
 }
 
-static void WashTask_StateFoam(washBox_t boxNumber)
+void WashTask_StateFoam(washBox_t boxNumber)
 {
   assert_param(IS_WASH_BOX(boxNumber));
   
@@ -106,7 +158,7 @@ static void WashTask_StateFoam(washBox_t boxNumber)
   washBox[boxNumber].stage = WASH_STAGE_BRUSHES; // switch to next state
 }
 
-static void WashTask_StateBrushes(washBox_t boxNumber)
+void WashTask_StateBrushes(washBox_t boxNumber)
 {
   assert_param(IS_WASH_BOX(boxNumber));
   
@@ -115,7 +167,7 @@ static void WashTask_StateBrushes(washBox_t boxNumber)
   washBox[boxNumber].stage = WASH_STAGE_RINSING; // switch to next state
 }
 
-static void WashTask_StateRinsing(washBox_t boxNumber)
+void WashTask_StateRinsing(washBox_t boxNumber)
 {
   assert_param(IS_WASH_BOX(boxNumber));
   
@@ -124,7 +176,7 @@ static void WashTask_StateRinsing(washBox_t boxNumber)
   washBox[boxNumber].stage = WASH_STAGE_DRYING;  // switch to next state
 }
 
-static void WashTask_StateDrying(washBox_t boxNumber)
+void WashTask_StateDrying(washBox_t boxNumber)
 {
   assert_param(IS_WASH_BOX(boxNumber));
   
