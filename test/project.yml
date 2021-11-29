@@ -72,7 +72,6 @@
 :tools_test_linker:
   :arguments:
     - -lm
-    - -pthread
 :tools_gcov_linker:
   :arguments:
     - -lm

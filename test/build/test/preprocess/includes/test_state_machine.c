@@ -1,7 +1,0 @@
----
-- D:/projects/STM/CarWash/test/vendor/ceedling/vendor/unity/src/unity.h
-- test/support/UnityHelper.h
-- build/test/mocks/mock_man_buttons.h
-- "../Src/wash_tasks_private.h"
-- "../Src/wash_tasks.h"
-- build/temp/_test_state_machine.c
