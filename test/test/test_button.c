@@ -39,21 +39,27 @@ void test_button_init(void)
   TEST_ASSERT_EQUAL_INT8(-1, ret_code);
   ret_code = Button_Init(&btn_init, &btn_inst, 0);
   TEST_ASSERT_EQUAL_INT8(-1, ret_code);
+
   // btn_init_t struct field .port_read is missing
   ret_code = Button_Init(&btn_init, &btn_inst, 1);
   TEST_ASSERT_EQUAL_INT8(-1, ret_code);
+
   // test positive
   btn_init.port_read = dummy_port_read;
   ret_code = Button_Init(&btn_init, &btn_inst, 1);
   TEST_ASSERT_EQUAL_INT8(0, ret_code);
+
   // test internal object link
   TEST_ASSERT_EQUAL_PTR(&btn_inst, btn_init.instance);
   TEST_ASSERT_EQUAL_INT8(1, btn_init.count);
 }
 
 // ***************************************************************************//
+//                          init_defaults_test                                //
+// ***************************************************************************//
 void test_init_defaults(void)
 {
+  // arrange
   // minimum required configuration
   btn_instance_t btn_inst[2] = {
     {
@@ -71,9 +77,11 @@ void test_init_defaults(void)
     .port_read = dummy_port_read,
   };
 
+  // act
   int8_t ret_code = Button_Init(&btn_init, btn_inst, 2);
-  TEST_ASSERT_EQUAL_INT8(0, ret_code);
 
+  // assert
+  TEST_ASSERT_EQUAL_INT8(0, ret_code);
   TEST_ASSERT_EQUAL_UINT8(10, btn_init.process_time_ms);
   TEST_ASSERT_EQUAL_UINT8(20, btn_init.debounce_time_ms);
   TEST_ASSERT_EQUAL_UINT16(1000, btn_init.long_press_def_ms);
@@ -82,15 +90,19 @@ void test_init_defaults(void)
 }
 
 // ***************************************************************************//
+//                            single_button_press                             //
+// ***************************************************************************//
 uint16_t test_single_button_timer_counter = 0;
 
 uint8_t single_button_port_read(const uint32_t *port, const uint32_t pin)
 {
-  if ((test_single_button_timer_counter >= 10) && (test_single_button_timer_counter <= 40))   // emulate short press
+  if ((test_single_button_timer_counter >= 10) && 
+      (test_single_button_timer_counter <= 40))   // emulate short press
   {
     return 1;
   }
-  else if ((test_single_button_timer_counter >= 1000) && (test_single_button_timer_counter <= 2400))  // emulate long press and hold
+  else if ((test_single_button_timer_counter >= 1000) &&
+           (test_single_button_timer_counter <= 2400))  // emulate long press and hold
   {
     return 1;
   }
@@ -101,7 +113,6 @@ uint8_t single_button_port_read(const uint32_t *port, const uint32_t pin)
 }
 
 
-uint8_t btn_ev_short_release_flag = 0;
 void btn_ev_short_release(uint8_t btn_code)
 {
   if (0 == test_single_button_timer_counter)
@@ -109,10 +120,10 @@ void btn_ev_short_release(uint8_t btn_code)
     TEST_FAIL_MESSAGE("Not supposed to happen");
   }
 
-  btn_ev_short_release_flag = 1;
+  TEST_ASSERT_EQUAL_UINT8(0, btn_code);
+  TEST_ASSERT_EQUAL_UINT32(70, test_single_button_timer_counter);
 }
 
-uint8_t btn_ev_long_press_flag = 0;
 void btn_ev_long_press(uint8_t btn_code)
 {
   if (0 == test_single_button_timer_counter)
@@ -120,10 +131,10 @@ void btn_ev_long_press(uint8_t btn_code)
     TEST_FAIL_MESSAGE("Not supposed to happen");
   }
 
-  btn_ev_long_press_flag = 1;
+  TEST_ASSERT_EQUAL_UINT8(0, btn_code);
+  TEST_ASSERT_INT16_WITHIN(400, 2000, test_single_button_timer_counter);
 }
 
-uint8_t btn_ev_long_release_flag = 0;
 void btn_ev_long_release(uint8_t btn_code)
 {
   if (0 == test_single_button_timer_counter)
@@ -131,7 +142,8 @@ void btn_ev_long_release(uint8_t btn_code)
     TEST_FAIL_MESSAGE("Not supposed to happen");
   }
 
-  btn_ev_long_release_flag = 1;
+  TEST_ASSERT_EQUAL_UINT8(0, btn_code);
+  TEST_ASSERT_EQUAL_UINT32((2400 + 30), test_single_button_timer_counter);
 }
 
 
@@ -158,23 +170,12 @@ void test_single_button_press(void)
   while (test_single_button_timer_counter < 3500) // assume that we trigger ISR each 10ms
   {
     Button_Update();
-    
-    if (test_single_button_timer_counter == 80) // check short press test case
-    {
-      TEST_ASSERT_EQUAL_INT8(1, btn_ev_short_release_flag);
-    }
-    else if (test_single_button_timer_counter == (2010)) // 1sec + 20ms debounce time + 60ms previes test case
-    {
-      TEST_ASSERT_EQUAL_INT8(1, btn_ev_long_press_flag);
-    }
-    else if (test_single_button_timer_counter == (2400 + 40)) // 1sec + 20ms debounce time previes test case
-    {
-      TEST_ASSERT_EQUAL_INT8(1, btn_ev_long_release_flag);
-    }
     test_single_button_timer_counter += 10;
   }
 }
 
+// ***************************************************************************//
+//                            multi_button_press                              //
 // ***************************************************************************//
 uint16_t test_multi_button_timer_counter = 0;
 
@@ -182,7 +183,8 @@ uint8_t multi_button_port_read(const uint32_t *port, const uint32_t pin)
 {
   if (13 == pin)
   {
-    if ((test_multi_button_timer_counter >= 10) && (test_multi_button_timer_counter <= 40))   // emulate short press
+    if ((test_multi_button_timer_counter >= 10) && 
+        (test_multi_button_timer_counter <= 40))   // emulate short press
     {
       return 1;
     }
@@ -190,7 +192,8 @@ uint8_t multi_button_port_read(const uint32_t *port, const uint32_t pin)
   
   if (5 == pin)
   {
-    if ((test_multi_button_timer_counter >= 30) && (test_multi_button_timer_counter <= 50))  // emulate short press
+    if ((test_multi_button_timer_counter >= 30) && 
+        (test_multi_button_timer_counter <= 50))  // trigger event with 10ms diff
     {
       return 1;
     }
@@ -208,8 +211,8 @@ void btn_ev_short_release_2(uint8_t btn_code)
     TEST_FAIL_MESSAGE("Not supposed to happen");
   }
 
-  if (0 == btn_code) btn_1_ev_short_release_flag = 1;
-  if (1 == btn_code) btn_2_ev_short_release_flag = 1;
+  if (0 == btn_code)  TEST_ASSERT_EQUAL_UINT32(70, test_multi_button_timer_counter);
+  if (1 == btn_code)  TEST_ASSERT_EQUAL_UINT32(80, test_multi_button_timer_counter);
 }
 
 void test_multi_button_press(void)
@@ -236,19 +239,13 @@ void test_multi_button_press(void)
   while (test_multi_button_timer_counter < 3500) // assume that we trigger ISR each 10ms
   {
     Button_Update();
-    
-    if (test_multi_button_timer_counter == 80) // check short press test case
-    {
-      TEST_ASSERT_EQUAL_INT8(1, btn_1_ev_short_release_flag);
-    }
-    else if (test_multi_button_timer_counter == 90) // 1sec + 20ms debounce time + 60ms previes test case
-    {
-      TEST_ASSERT_EQUAL_INT8(1, btn_2_ev_short_release_flag);
-    }
     test_multi_button_timer_counter += 10;
   }
 }
 
+
+// ***************************************************************************//
+//                            button_event_get                                //
 // ***************************************************************************//
 uint16_t test_button_event_get_timer_counter = 0;
 
@@ -256,7 +253,8 @@ uint8_t button_event_get_port_read(const uint32_t *port, const uint32_t pin)
 {
   if (13 == pin)
   {
-    if ((test_button_event_get_timer_counter >= 10) && (test_button_event_get_timer_counter <= 40))   // emulate short press
+    if ((test_button_event_get_timer_counter >= 10) && 
+        (test_button_event_get_timer_counter <= 40))   // emulate short press
     {
       return 1;
     }
@@ -264,7 +262,8 @@ uint8_t button_event_get_port_read(const uint32_t *port, const uint32_t pin)
   
   if (5 == pin)
   {
-    if ((test_button_event_get_timer_counter >= 1000) && (test_button_event_get_timer_counter <= 2000))  // emulate long press
+    if ((test_button_event_get_timer_counter >= 1000) &&
+        (test_button_event_get_timer_counter <= 2000))  // emulate long press
     {
        return 1;
     }
