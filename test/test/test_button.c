@@ -1,4 +1,3 @@
-#include "unity_config.h"
 #include "unity.h"
 #include "button.h"
 
