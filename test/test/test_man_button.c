@@ -1,3 +1,4 @@
+#include "unity_config.h"
 #include "unity.h"
 #include "man_buttons.h"
 
@@ -24,22 +25,25 @@ int8_t button_init_stub(btn_init_t* init, btn_instance_t* instance, uint8_t coun
   TEST_ASSERT_NOT_NULL(instance);
   TEST_ASSERT_EQUAL(BTN_COUNT, count);
   TEST_ASSERT_EQUAL(0, cmock_num_calls);
+  return 0;
 }
 
 
 void test_man_buttons_init(void)
 {
+  int8_t ret_code = -1;
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init_Expect(GPIOA, &GPIO_InitStruct);
 
+  MessageBufferHandle_t buttonMsgHandler;
   Button_Init_StubWithCallback(button_init_stub);
-
-  xStreamBufferGenericCreate_IgnoreAndReturn(0);
+  xStreamBufferGenericCreate_IgnoreAndReturn(buttonMsgHandler);
   
-  manButtons_Init();
+  ret_code = manButtons_Init();
+  TEST_ASSERT_EQUAL(0, ret_code);
 }
 
 //******************************************************************************

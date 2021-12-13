@@ -19,7 +19,7 @@ typedef enum
   * @param None
   * @retval None
   */
-void manButtons_Init(void);
+int8_t manButtons_Init(void);
 
 /**
   * @brief manButtons_Update polls the buttons state

@@ -35,11 +35,30 @@ static btn_init_t btn_init = {
 static MessageBufferHandle_t buttonMsgHandler;
 
 
-void manButtons_Init(void)
+int8_t manButtons_Init(void)
 {
-  manButtons_GpioInit();
-  Button_Init(&btn_init, btn_inst, BTN_COUNT);
-  buttonMsgHandler = xMessageBufferCreate(5);
+  int8_t ret_code = -1;
+
+  do
+  {
+    manButtons_GpioInit();
+    ret_code = Button_Init(&btn_init, btn_inst, BTN_COUNT);
+    if (0 != ret_code)                // Init failde, break and finish execution
+    {
+      break;
+    }
+
+    buttonMsgHandler = xMessageBufferCreate(5);
+    if (NULL == buttonMsgHandler)      // msgBuffer not created, break and finish execution
+    {
+      ret_code = -1;
+      break;
+    }
+    
+    ret_code = 0; 
+  } while (0);
+  
+  return ret_code;
 }
 
 void manButtons_Update(void)

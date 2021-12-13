@@ -1,3 +1,4 @@
+#include "unity_config.h"
 #include "unity.h"
 #include "button.h"
 
@@ -102,7 +103,7 @@ uint8_t single_button_port_read(const uint32_t *port, const uint32_t pin)
     return 1;
   }
   else if ((test_single_button_timer_counter >= 1000) &&
-           (test_single_button_timer_counter <= 2400))  // emulate long press and hold
+           (test_single_button_timer_counter <= 2400))  // emulate 1.4 sec long press and hold
   {
     return 1;
   }
@@ -167,10 +168,10 @@ void test_single_button_press(void)
   int8_t ret_code = Button_Init(&btn_init, &btn_inst, 1);
   TEST_ASSERT_EQUAL_INT8(0, ret_code);
 
-  while (test_single_button_timer_counter < 3500) // assume that we trigger ISR each 10ms
+  while (test_single_button_timer_counter < 3500) 
   {
     Button_Update();
-    test_single_button_timer_counter += 10;
+    test_single_button_timer_counter += 10;    // assume that we trigger ISR each 10ms durring 3.5sec period
   }
 }
 
@@ -211,8 +212,17 @@ void btn_ev_short_release_2(uint8_t btn_code)
     TEST_FAIL_MESSAGE("Not supposed to happen");
   }
 
-  if (0 == btn_code)  TEST_ASSERT_EQUAL_UINT32(70, test_multi_button_timer_counter);
-  if (1 == btn_code)  TEST_ASSERT_EQUAL_UINT32(80, test_multi_button_timer_counter);
+  if (0 == btn_code)
+  {
+    TEST_ASSERT_EQUAL_UINT8(BTN_STATE_SHORT, Button_EventGet(0));
+    TEST_ASSERT_EQUAL_UINT32(70, test_multi_button_timer_counter);
+  }
+
+  if (1 == btn_code)
+  {
+    TEST_ASSERT_EQUAL_UINT8(BTN_STATE_SHORT, Button_EventGet(1));
+    TEST_ASSERT_EQUAL_UINT32(80, test_multi_button_timer_counter);
+  }
 }
 
 void test_multi_button_press(void)
@@ -294,17 +304,17 @@ void test_button_event_get(void)
   {
     Button_Update();
       
-    if (test_button_event_get_timer_counter == 80) // check short press test case
+    if (test_button_event_get_timer_counter == 70) // check short press test case
     {
-      TEST_ASSERT_EQUAL_INT8(BTN_STATE_SHORT, Button_EventGet(0));
+      TEST_ASSERT_EQUAL_UINT8(BTN_STATE_SHORT, Button_EventGet(0));
       // check unexisting button
-      TEST_ASSERT_EQUAL_INT8(BTN_STATE_NONE, Button_EventGet(3));
+      TEST_ASSERT_EQUAL_UINT8(BTN_STATE_NONE, Button_EventGet(3));
     }
     else if (test_button_event_get_timer_counter == 2000) // long button press
     {
-      TEST_ASSERT_EQUAL_INT8(BTN_STATE_LONG, Button_EventGet(1));
+      TEST_ASSERT_EQUAL_UINT8(BTN_STATE_LONG, Button_EventGet(1));
       // check unexisting button
-      TEST_ASSERT_EQUAL_INT8(BTN_STATE_NONE, Button_EventGet(2));
+      TEST_ASSERT_EQUAL_UINT8(BTN_STATE_NONE, Button_EventGet(2));
     }
 
     test_button_event_get_timer_counter += 10;
